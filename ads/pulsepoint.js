@@ -15,7 +15,6 @@
  */
 
 import {writeScript, loadScript, checkData} from '../3p/3p';
-import {getSourceUrl} from '../src/url';
 import {doubleclick} from '../ads/google/doubleclick';
 
 /**
@@ -24,7 +23,47 @@ import {doubleclick} from '../ads/google/doubleclick';
  */
 export function pulsepoint(global, data) {
   checkData(data, [
-    'size', 'pid', 'tagid'
+    'pid', 'tagid', 'tagtype', 'slot', 'timeout'
   ]);
-  writeScript(global, 'https://tag.contextweb.com/getjs.aspx?action=VIEWAD&cwpid=' + data.pid + '&cwtagid=' + data.tagid + '&cwadformat=' + data.size);
+  if (data.tagtype === 'hb') {
+    headerBidding(global, data);
+  } else {
+    tag(global, data);
+  }
+}
+
+/**
+ * @param {!Window} global
+ * @param {!Object} data
+ */
+function tag(global, data) {
+  writeScript(global, 'https://tag.contextweb.com/getjs.aspx?action=VIEWAD&cwpid=' + data.pid + '&cwtagid=' + data.tagid + '&cwadformat=' + data.width + 'X' + data.height); 
+}
+
+/**
+ * @param {!Window} global
+ * @param {!Object} data
+ */
+function headerBidding(global, data) {
+  loadScript(global, 'http://localhost/ht.js', () => {
+    const hbConfig =  {
+        timeout: data.timeout || 1000,
+        slots: [{
+            cp: data.pid,
+            ct: data.tagid,
+            cf: data.width + 'x' + data.height,
+            placement: data.slot,
+            elementId: 'c'
+        }],
+        bidsAvailable: function(targeting) {
+          doubleclick(global, {
+            width: data.width,
+            height: data.height,
+            slot: data.slot,
+            targeting: targeting[data.slot]
+          });
+        }
+    };
+    new PulsePointHeaderTag(hbConfig).init();
+  });
 }

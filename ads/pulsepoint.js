@@ -45,7 +45,7 @@ function tag(global, data) {
  * @param {!Object} data
  */
 function headerBidding(global, data) {
-  loadScript(global, 'http://localhost/ht.js', () => {
+  loadScript(global, 'https://ads.contextweb.com/ht.js', () => {
     const hbConfig =  {
         timeout: data.timeout || 1000,
         slots: [{

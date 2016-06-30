@@ -55,7 +55,7 @@ function headerBidding(global, data) {
             placement: data.slot,
             elementId: 'c'
         }],
-        bidsAvailable: function(targeting) {
+        done: function(targeting) {
           doubleclick(global, {
             width: data.width,
             height: data.height,
